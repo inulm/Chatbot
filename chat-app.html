@@ -365,8 +365,10 @@ onAuthStateChanged(auth, async (firebaseUser) => {
         displayName: data.displayName,
         color: data.color
       };
-      // authScreen এখনো active থাকলে home-এ যাও
-      if (document.getElementById('authScreen').classList.contains('active')) {
+      // authScreen active থাকলেই home-এ যাও (page reload বা fresh login)
+      const onAuth = document.getElementById('authScreen').classList.contains('active');
+      const onHome = document.getElementById('homeScreen').classList.contains('active');
+      if (onAuth && !onHome) {
         window.goHome && window.goHome();
       }
     }
@@ -460,7 +462,8 @@ async function doRegister() {
     await FB.set(FB.r('usernames/' + username), uid);
 
     ME = { uid, username, displayName, color };
-    goHome();
+    // onAuthStateChanged এ goHome() call হবে — এখানে করতে হবে না
+    setAuthBusy(false);
   } catch(e) {
     const msgs = {
       'auth/email-already-in-use': 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে!',
@@ -490,7 +493,8 @@ async function doLogin() {
     const data = snap.val();
 
     ME = { uid, username: data.username, displayName: data.displayName, color: data.color };
-    goHome();
+    // onAuthStateChanged এ goHome() call হবে — এখানে করতে হবে না
+    setAuthBusy(false);
   } catch(e) {
     const msgs = {
       'auth/user-not-found':      'ইমেইল পাওয়া যায়নি',
