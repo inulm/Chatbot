@@ -432,12 +432,12 @@ function setAuthBusy(busy) {
 function whenReady(fn) { if (window.FB_READY) fn(); else window.addEventListener('fb-ready', fn, { once: true }); }
 
 async function doRegister() {
-  const username    = document.getElementById('regUser').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const username    = document.getElementById('regUser').value.trim().toLowerCase();
   const displayName = document.getElementById('regDisplay').value.trim();
   const email       = document.getElementById('regEmail').value.trim();
   const password    = document.getElementById('regPass').value;
 
-  if (username.length < 3)  return showErr('ইউজারনেম কমপক্ষে ৩ অক্ষর হতে হবে');
+  if (!/^[a-z0-9_]{3,20}$/.test(username)) return showErr('ইউজারনেম ৩-২০ অক্ষর, শুধু a-z, 0-9, _ ব্যবহার করো');
   if (!displayName)          return showErr('ডিসপ্লে নাম দাও');
   if (!email)                return showErr('ইমেইল দাও');
   if (password.length < 6)  return showErr('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে');
@@ -467,7 +467,7 @@ async function doRegister() {
       'auth/invalid-email':        'ইমেইল ঠিকমতো লিখো',
       'auth/weak-password':        'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে',
     };
-    showErr(msgs[e.code] || 'কিছু একটা ভুল হয়েছে, আবার চেষ্টা করো');
+    showErr(msgs[e.code] || ('Error: ' + (e.code || e.message || 'unknown')));
     setAuthBusy(false);
   }
 }
