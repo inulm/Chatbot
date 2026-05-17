@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ZapChat</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ambient">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<div class="screen active" id="authScreen">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div class="brand-name">ZapChat</div>
+      <div class="brand-sub">দ্রুত, সুন্দর, সহজ চ্যাট</div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">লগইন</button>
+      <button class="tab-btn" onclick="switchTab('register')">নতুন অ্যাকাউন্ট</button>
+    </div>
+
+    <div id="loginForm">
+      <div class="field">
+        <label class="field-label">ইমেইল</label>
+        <input class="field-inp" id="loginEmail" type="email" placeholder="তোমার ইমেইল" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label">পাসওয়ার্ড</label>
+        <input class="field-inp" id="loginPass" type="password" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">লগইন করো →</button>
+    </div>
+
+    <div id="registerForm" style="display:none">
+      <div class="field">
+        <label class="field-label">ইউজারনেম</label>
+        <input class="field-inp" id="regUser" placeholder="ইউনিক নাম বেছে নাও (a-z, 0-9, _)" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="field-label">ডিসপ্লে নাম</label>
+        <input class="field-inp" id="regDisplay" placeholder="যে নামে চিনবে" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="field-label">ইমেইল</label>
+        <input class="field-inp" id="regEmail" type="email" placeholder="তোমার ইমেইল" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label">পাসওয়ার্ড</label>
+        <input class="field-inp" id="regPass" type="password" placeholder="কমপক্ষে ৬ অক্ষর">
+      </div>
+      <button class="auth-btn" id="registerBtn" onclick="doRegister()">অ্যাকাউন্ট খোলো →</button>
+    </div>
+
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
+<div class="screen" id="homeScreen">
+  <div class="home-nav">
+    <div class="nav-avatar" id="myAvatar">?</div>
+    <div class="nav-title-wrap">
+      <div class="nav-title">ZapChat</div>
+      <div class="nav-sub" id="myDisplayName">লোড হচ্ছে…</div>
+    </div>
+    <button class="nav-logout" onclick="doLogout()" title="লগআউট">⏻</button>
+  </div>
+
+  <div class="home-search-wrap">
+    <div class="home-search">
+      <span class="home-search-icon">🔍</span>
+      <input class="home-search-inp" id="userSearchInp" placeholder="মানুষ খোঁজো…" oninput="filterUsers(this.value)">
+    </div>
+  </div>
+
+  <!-- FIX: dynamic label showing online count -->
+  <div class="section-label" id="sectionLabel">সবাই</div>
+  <div class="user-list" id="userList"><div class="spinner"></div></div>
+</div>
+
+<div class="screen" id="chatScreen">
+  <div class="chat-top">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="chat-ava" id="chatAva">?<div class="online-dot"></div></div>
+    <div class="chat-info">
+      <div class="chat-name" id="chatName">—</div>
+      <div class="chat-status" id="chatStatus">● অনলাইন</div>
+    </div>
+    <div class="chat-top-actions">
+      <!-- FIX: togSearch and clrChat now implemented -->
+      <button class="cht-btn" onclick="togSearch()">🔍</button>
+      <button class="cht-btn" onclick="clrChat()">🗑</button>
+    </div>
+  </div>
+
+  <!-- FIX: in-chat search bar -->
+  <div class="chat-search-bar" id="chatSearchBar">
+    <input class="chat-search-inp" id="chatSearchInp" placeholder="মেসেজ খোঁজো…" oninput="doMsgSearch(this.value)">
+    <div class="search-nav">
+      <button class="snav-btn" onclick="navSearch(-1)">↑</button>
+      <button class="snav-btn" onclick="navSearch(1)">↓</button>
+    </div>
+    <button class="snav-btn" onclick="togSearch()">✕</button>
+  </div>
+
+  <div class="msgs" id="msgs"></div>
+  <button class="scbtn" id="scbtn" onclick="scBot()">↓</button>
+  <div class="emj-panel" id="epanel"></div>
+
+  <div class="reply-strip" id="replyStrip">
+    <span class="reply-strip-txt" id="replyTxt"><span>↩️</span> …</span>
+    <button class="reply-cancel" onclick="cancelReply()">✕</button>
+  </div>
+
+  <div class="inputbar">
+    <div class="iwrap" id="iwrap">
+      <textarea id="msgInp" placeholder="মেসেজ লিখো…" rows="1" oninput="onType(this)" onkeydown="onKey(event)"></textarea>
+      <button class="emj-btn" onclick="togEmj()">😊</button>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="sendMsg()" disabled>➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+<script type="module" src="firebase.js"></script>
+</body>
+</html>
